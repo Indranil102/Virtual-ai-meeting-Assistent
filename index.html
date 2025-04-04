@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Video Conference</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="dark-mode">
+  <div class="app-container">
+    <header>
+      <div class="logo">VideoAI</div>
+      <div class="theme-toggle">
+        <i class="fas fa-moon"></i>
+      </div>
+    </header>
+    
+    <main>
+      <div class="video-grid" id="videoGrid">
+        <div class="video-container main-video">
+          <video id="localVideo" autoplay muted playsinline></video>
+          <div class="video-overlay">
+            <span class="participant-name">You</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls-bar">
+        <button class="control-btn" id="muteBtn">
+          <i class="fas fa-microphone"></i>
+        </button>
+        <button class="control-btn" id="videoBtn">
+          <i class="fas fa-video"></i>
+        </button>
+        <button class="control-btn" id="screenShareBtn">
+          <i class="fas fa-desktop"></i>
+        </button>
+        <button class="control-btn" id="chatBtn">
+          <i class="fas fa-comments"></i>
+        </button>
+        
+        <button class="control-btn end-call">
+          <i class="fas fa-phone-slash"></i>
+        </button>
+      </div>
+    </main>
+
+    <aside class="side-panel" id="sidePanel">
+      <div class="panel-tabs">
+        <button class="tab-btn active" data-tab="chat">Chat</button>
+        <button class="tab-btn" data-tab="ai">AI Panel</button>
+      </div>
+
+      <div class="panel-content chat-panel active">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input">
+          <input type="text" placeholder="Type a message...">
+          <button><i class="fas fa-paper-plane"></i></button>
+        </div>
+      </div>
+
+      <div class="panel-content ai-panel">
+        <div class="ai-features">
+          <div class="transcription">
+            <h3>Live Transcription</h3>
+            <div class="transcript-content"></div>
+          </div>
+          <div class="sentiment">
+            <h3>Meeting Sentiment</h3>
+            <canvas id="sentimentChart"></canvas>
+          </div>
+          <div class="keywords">
+            <h3>Key Topics</h3>
+            <div class="keyword-cloud"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
