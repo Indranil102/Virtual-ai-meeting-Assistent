@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Room - Google Meet Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Meeting room specific styles */
+        .meeting-container {
+            height: 100vh;
+            display: grid;
+            grid-template-rows: 1fr auto;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            padding: 16px;
+            background-color: var(--color-gray-900);
+            transition: all 0.3s ease;
+        }
+
+        .video-grid.chat-open {
+            margin-right: 640px;
+        }
+
+        .video-container {
+            aspect-ratio: 16/9;
+            background-color: var(--color-gray-800);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-container .participant-name {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            color: var(--color-white);
+            font-size: 14px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .controls-bar {
+            background-color: var(--color-white);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--color-gray-200);
+        }
+
+        .meeting-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background-color: var(--color-gray-200);
+            color: var(--color-gray-700);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: currentColor;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .control-button:hover::before {
+            opacity: 0.1;
+        }
+
+        .control-button:active::before {
+            opacity: 0.2;
+        }
+
+        .control-button.active {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+        }
+
+        .control-button.disabled {
+            background-color: var(--color-error);
+            color: var(--color-white);
+        }
+
+        .control-button.end-call {
+            background-color: var(--color-error);
+            color: var(--color-white);
+        }
+
+        .control-button.end-call:hover {
+            background-color: #d32f2f;
+        }
+
+        .side-panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 640px;
+            background-color: var(--color-white);
+            border-left: 1px solid var(--color-gray-200);
+            display: grid;
+            grid-template-columns: 320px 320px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .side-panel.open {
+            transform: translateX(0);
+        }
+
+        .chat-section {
+            border-right: 1px solid var(--color-gray-200);
+        }
+
+        .chat-header, .ai-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--color-white);
+        }
+
+        .chat-messages, .ai-messages {
+            height: calc(100vh - 130px);
+            overflow-y: auto;
+            padding: 16px;
+            background-color: var(--color-white);
+        }
+
+        .message {
+            margin-bottom: 16px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .message.user {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            margin-left: auto;
+        }
+
+        .message.participant {
+            background-color: var(--color-gray-100);
+            color: var(--color-text);
+        }
+
+        .message.ai {
+            background-color: var(--color-accent);
+            color: var(--color-white);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .chat-input {
+            padding: 16px;
+            border-top: 1px solid var(--color-gray-200);
+            display: flex;
+            gap: 8px;
+            background-color: var(--color-white);
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--color-gray-300);
+            border-radius: 24px;
+            outline: none;
+        }
+
+        .chat-input button {
+            padding: 8px;
+            border: none;
+            background: none;
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+
+        .ai-assistant {
+            background-color: var(--color-white);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ai-content {
+            padding: 16px;
+        }
+
+        .ai-summary {
+            background-color: var(--color-gray-100);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .ai-actions {
+            background-color: var(--color-gray-100);
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 1024px) {
+            .side-panel {
+                width: 320px;
+                grid-template-columns: 1fr;
+            }
+
+            .video-grid.chat-open {
+                margin-right: 320px;
+            }
+
+            .ai-assistant {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .side-panel {
+                width: 100%;
+            }
+
+            .video-grid.chat-open {
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="meeting-container">
+        <div class="video-grid">
+            <div class="video-container">
+                <video id="localVideo" autoplay muted playsinline></video>
+                <div class="participant-name">You</div>
+            </div>
+        </div>
+
+        <div class="controls-bar">
+            <div class="meeting-info">
+                <span class="meeting-time">00:00</span>
+            </div>
+
+            <div class="meeting-controls">
+                <button class="control-button active" id="microphone" title="Mute/Unmute">
+                    <i data-lucide="mic"></i>
+                </button>
+                <button class="control-button active" id="camera" title="Turn Camera On/Off">
+                    <i data-lucide="video"></i>
+                </button>
+                <button class="control-button" id="screen" title="Share Screen">
+                    <i data-lucide="monitor"></i>
+                </button>
+                <button class="control-button" id="chat" title="Open Chat">
+                    <i data-lucide="message-square"></i>
+                </button>
+                <button class="control-button" id="participants" title="Show Participants">
+                    <i data-lucide="users"></i>
+                </button>
+                <button class="control-button end-call" id="end-call" title="End Call">
+                    <i data-lucide="phone-off"></i>
+                </button>
+            </div>
+
+            <div class="meeting-actions">
+                <button class="control-button" id="more" title="More Options">
+                    <i data-lucide="more-vertical"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="chat-section">
+                <div class="chat-header">
+                    <h3>Meeting Chat</h3>
+                    
+                </div>
+                <div class="chat-messages">
+                    <div class="message participant">
+                        <p>Welcome to the meeting!</p>
+                    </div>
+                </div>
+                <!--<div class="chat-input">
+                    <input type="text" placeholder="Type a message...">
+                    <button>
+                        <i data-lucide="send"></i>
+                    </button>
+                </div> -->
+                <input type="text" name="enter text" id="" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;" placeholder="Ask AI Assistant...">
+            </div>
+            
+            <div class="ai-assistant">
+                <div class="ai-header">
+                    <h3>AI Assistant</h3>
+                    <button class="icon-button" id="close-chat">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+                <div class="ai-messages">
+                    <div class="ai-content">
+                        <div class="ai-summary">
+                            <h4>Meeting Summary</h4>
+                            <p>The meeting started at 10:00 AM</p>
+                            <p>Current participants: 1</p>
+                        </div>
+                        <div class="ai-actions">
+                            <h4>Action Items</h4>
+                            <ul>
+                                <li>No action items detected yet</li>
+                            </ul>
+                        </div>
+                        <input type="text" name="enter text" id="" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;" placeholder="Ask AI Assistant...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="meeting.js"></script>
+</body>
+</html>
